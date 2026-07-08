@@ -50,13 +50,13 @@ export const Contact = () => {
   ];
 
   return (
-    <section id="contact" className="py-16 md:py-24 relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-8 overflow-hidden" style={{ perspective: '1000px' }}>
+    <section id="contact" className="py-16 md:py-24 relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-8 overflow-hidden">
       <motion.h2 
-        initial={{ opacity: 0, y: 30, rotateX: 20 }}
-        whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-50px" }}
-        transition={{ duration: 0.8, type: "spring", bounce: 0.4 }}
-        className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-10 sm:mb-16 flex items-center gap-4 sm:gap-6 text-gray-900 dark:text-white transition-colors origin-bottom"
+        transition={{ duration: 0.6, type: "spring", bounce: 0.3 }}
+        className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-10 sm:mb-16 flex items-center gap-4 sm:gap-6 text-gray-900 dark:text-white transition-colors"
       >
         <span className="whitespace-nowrap shrink-0">Get In Touch</span>
         <div className="h-px bg-gradient-to-r from-gray-700 via-blue-500/50 to-transparent flex-grow ml-2 sm:ml-4 border-none shrink"></div>
@@ -84,10 +84,10 @@ export const Contact = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group relative"
-                initial={{ opacity: 0, y: 50, scale: 0.9, rotateX: -20 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
+                initial={{ opacity: 0, y: 40, scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.7, delay: index * 0.15, type: "spring", bounce: 0.4 }}
+                transition={{ duration: 0.6, delay: index * 0.1, type: "spring", bounce: 0.3 }}
               >
                 {/* Animated glowing border background */}
                 <div className={`absolute -inset-[1px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm bg-gradient-to-r from-transparent via-current to-transparent ${link.color.split(' ')[0]} ${link.color.split(' ')[1]}`} />

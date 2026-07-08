@@ -54,8 +54,8 @@ export const AnimatedBackground = () => {
           rotate: [0, 360],
           scale: [1, 1.2, 1],
         }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        className="absolute -top-[10%] -left-[10%] w-[60vw] h-[60vw] bg-[conic-gradient(from_0deg,rgba(168,85,247,0.3),rgba(236,72,153,0.3),transparent,rgba(168,85,247,0.3))] rounded-full mix-blend-screen filter blur-[100px] opacity-80"
+        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+        className="hidden md:block absolute -top-[10%] -left-[10%] w-[60vw] h-[60vw] bg-[conic-gradient(from_0deg,rgba(168,85,247,0.3),rgba(236,72,153,0.3),transparent,rgba(168,85,247,0.3))] rounded-full mix-blend-screen filter blur-[100px] opacity-80"
       />
 
       {/* Sweeping Ambient Aurora 2 - DEEP BLUE / CYAN */}
@@ -64,12 +64,16 @@ export const AnimatedBackground = () => {
           rotate: [360, 0],
           scale: [1, 1.3, 1],
         }}
-        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-        className="absolute -bottom-[10%] -right-[10%] w-[60vw] h-[60vw] bg-[conic-gradient(from_180deg,rgba(59,130,246,0.4),rgba(6,182,212,0.3),transparent,rgba(59,130,246,0.4))] rounded-full mix-blend-screen filter blur-[100px] opacity-80"
+        transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
+        className="hidden md:block absolute -bottom-[10%] -right-[10%] w-[60vw] h-[60vw] bg-[conic-gradient(from_180deg,rgba(59,130,246,0.4),rgba(6,182,212,0.3),transparent,rgba(59,130,246,0.4))] rounded-full mix-blend-screen filter blur-[100px] opacity-80"
       />
 
+      {/* Mobile-Only Simplified Gradient Glow (to replace heavy auroras) */}
+      <div className="md:hidden absolute -top-[10%] -left-[10%] w-[100vw] h-[100vw] bg-radial-gradient from-blue-900/30 to-transparent rounded-full filter blur-[60px] opacity-50" />
+      <div className="md:hidden absolute -bottom-[10%] -right-[10%] w-[100vw] h-[100vw] bg-radial-gradient from-purple-900/30 to-transparent rounded-full filter blur-[60px] opacity-50" />
+
       {/* Static Deep Glow Center */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[70vh] bg-blue-900/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[70vh] bg-blue-900/20 rounded-full blur-[80px] md:blur-[120px] pointer-events-none" />
     </div>
   );
 };

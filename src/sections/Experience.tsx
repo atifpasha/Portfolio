@@ -4,13 +4,13 @@ import { Player } from '@lottiefiles/react-lottie-player';
 
 export const Experience = () => {
   return (
-    <section id="experience" className="py-16 md:py-24 px-6 sm:px-8 md:px-10 max-w-7xl mx-auto border-t border-gray-200/20 dark:border-white/5 relative z-10" style={{ perspective: '1000px' }}>
+    <section id="experience" className="py-16 md:py-24 px-6 sm:px-8 md:px-10 max-w-7xl mx-auto border-t border-gray-200/20 dark:border-white/5 relative z-10">
       <motion.h2 
-        initial={{ opacity: 0, y: 30, rotateX: 20 }}
-        whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-50px" }}
-        transition={{ duration: 0.8, type: "spring", bounce: 0.4 }}
-        className="text-2xl sm:text-3xl font-bold mb-8 sm:mb-12 flex items-center gap-4 text-gray-900 dark:text-gray-100 transition-colors origin-bottom"
+        transition={{ duration: 0.6, type: "spring", bounce: 0.3 }}
+        className="text-2xl sm:text-3xl font-bold mb-8 sm:mb-12 flex items-center gap-4 text-gray-900 dark:text-gray-100 transition-colors"
       >
         <span className="whitespace-nowrap shrink-0">Where I've Worked</span>
         <div className="h-px bg-gray-300 dark:bg-gray-700 flex-grow ml-2 sm:ml-4 transition-colors"></div>
@@ -21,11 +21,11 @@ export const Experience = () => {
         {experiences.map((exp, index) => (
           <motion.div 
             key={exp.id}
-            initial={{ opacity: 0, y: 50, scale: 0.95, rotateX: -15 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
+            initial={{ opacity: 0, y: 50, scale: 0.98 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.7, delay: index * 0.15, type: "spring", bounce: 0.3 }}
-            className="border-l-2 border-gray-300 dark:border-gray-700 pl-6 relative transition-colors origin-top"
+            transition={{ duration: 0.6, delay: index * 0.1, type: "spring", bounce: 0.3 }}
+            className="border-l-2 border-gray-300 dark:border-gray-700 pl-6 relative transition-colors"
           >
             <div className="absolute w-4 h-4 bg-white dark:bg-[#020617] border-2 border-blue-500 rounded-full -left-[9px] top-1"></div>
             <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 transition-colors flex flex-col sm:flex-row sm:gap-2">
