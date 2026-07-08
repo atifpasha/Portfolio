@@ -69,7 +69,8 @@ export const Hero = () => {
           autoplay
           loop
           src="/Developer.json"
-           style={{ width: '100%', height: '400px', }}
+          style={{ width: '100%' }}
+          className="w-full h-[300px] sm:h-[400px] lg:h-[500px] transform scale-110 sm:scale-125 lg:scale-100"
         />
       </motion.div>
     </section>
