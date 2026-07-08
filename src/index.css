@@ -8,3 +8,9 @@
   --font-sans: 'Plus Jakarta Sans', sans-serif;
   --font-display: 'Space Grotesk', sans-serif;
 }
+
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+}
