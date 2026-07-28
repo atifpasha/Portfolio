@@ -1,17 +1,20 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   motion,
   useMotionTemplate,
   useMotionValue,
+  useReducedMotion,
   useSpring,
   useTransform,
 } from "framer-motion";
 
-export const AnimatedBackground = () => {
+export const AnimatedBackground = ({ darkMode }: { darkMode: boolean }) => {
   const mouseX = useMotionValue(0); // -1 to 1
   const mouseY = useMotionValue(0); // -1 to 1
   const cursorX = useMotionValue(0);
   const cursorY = useMotionValue(0);
+  const prefersReducedMotion = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(false);
 
   // Smooth values for premium trailing/parallax feel
   const springX = useSpring(mouseX, { stiffness: 80, damping: 24, mass: 0.6 });
@@ -27,15 +30,26 @@ export const AnimatedBackground = () => {
   const orbTwoX = useTransform(springX, [-1, 1], [100, -100]);
   const orbTwoY = useTransform(springY, [-1, 1], [70, -70]);
 
+  const lightCursorHaloX = useTransform(cursorSpringX, (v) => v - 230);
+  const lightCursorHaloY = useTransform(cursorSpringY, (v) => v - 230);
+  const lightCursorCoreX = useTransform(cursorSpringX, (v) => v - 56);
+  const lightCursorCoreY = useTransform(cursorSpringY, (v) => v - 56);
+  const darkCursorHaloX = useTransform(cursorSpringX, (v) => v - 260);
+  const darkCursorHaloY = useTransform(cursorSpringY, (v) => v - 260);
+  const darkCursorCoreX = useTransform(cursorSpringX, (v) => v - 48);
+  const darkCursorCoreY = useTransform(cursorSpringY, (v) => v - 48);
+
   // Interactive spotlight follows cursor
   const spotlightX = useTransform(springX, [-1, 1], ["12%", "88%"]);
   const spotlightY = useTransform(springY, [-1, 1], ["12%", "88%"]);
   const spotlight = useMotionTemplate`radial-gradient(650px circle at ${spotlightX} ${spotlightY}, rgba(59,130,246,0.22), rgba(14,165,233,0.14) 24%, rgba(168,85,247,0.10) 42%, transparent 72%)`;
   const lightSpotlight = useMotionTemplate`radial-gradient(560px circle at ${spotlightX} ${spotlightY}, rgba(59,130,246,0.18), rgba(56,189,248,0.14) 28%, rgba(139,92,246,0.10) 48%, transparent 74%)`;
 
+  const particleCount = prefersReducedMotion ? 0 : isMobile ? 8 : 16;
+
   const particles = useMemo(
     () =>
-      Array.from({ length: 18 }, (_, i) => ({
+      Array.from({ length: particleCount }, (_, i) => ({
         id: i,
         x: Math.random() * 100,
         y: Math.random() * 100,
@@ -46,27 +60,45 @@ export const AnimatedBackground = () => {
         duration: Math.random() * 8 + 12,
         delay: Math.random() * 6,
       })),
-    []
+    [particleCount]
   );
 
   useEffect(() => {
+    const media = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    if (prefersReducedMotion) return;
+
+    let rafId = 0;
+
     const handleMouseMove = (e: MouseEvent) => {
-      const nx = (e.clientX / window.innerWidth) * 2 - 1;
-      const ny = (e.clientY / window.innerHeight) * 2 - 1;
-      mouseX.set(nx);
-      mouseY.set(ny);
-      cursorX.set(e.clientX);
-      cursorY.set(e.clientY);
+      if (rafId) return;
+      rafId = window.requestAnimationFrame(() => {
+        const nx = (e.clientX / window.innerWidth) * 2 - 1;
+        const ny = (e.clientY / window.innerHeight) * 2 - 1;
+        mouseX.set(nx);
+        mouseY.set(ny);
+        cursorX.set(e.clientX);
+        cursorY.set(e.clientY);
+        rafId = 0;
+      });
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [mouseX, mouseY]);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      if (rafId) window.cancelAnimationFrame(rafId);
+    };
+  }, [cursorX, cursorY, mouseX, mouseY, prefersReducedMotion]);
 
-  return (
-    <>
-      {/* Light mode premium background */}
-      <div className="fixed inset-0 z-[-1] block dark:hidden bg-[#f8fbff] overflow-hidden pointer-events-none select-none">
+  if (!darkMode) {
+    return (
+      <div className="fixed inset-0 z-[-1] bg-[#f8fbff] overflow-hidden pointer-events-none select-none">
         <div className="absolute inset-0 bg-[radial-gradient(80%_70%_at_50%_35%,rgba(125,211,252,0.35),transparent_72%)]" />
 
         <motion.div
@@ -88,25 +120,28 @@ export const AnimatedBackground = () => {
 
         <motion.div className="absolute inset-0" style={{ background: lightSpotlight }} />
 
-        {/* Light mode cursor spotlight */}
-        <motion.div
-          className="absolute w-[460px] h-[460px] rounded-full blur-[85px] opacity-75 mix-blend-multiply"
-          style={{
-            x: useTransform(cursorSpringX, (v) => v - 230),
-            y: useTransform(cursorSpringY, (v) => v - 230),
-            background:
-              "radial-gradient(circle, rgba(56,189,248,0.34) 0%, rgba(59,130,246,0.22) 40%, rgba(168,85,247,0.16) 62%, transparent 74%)",
-          }}
-        />
-        <motion.div
-          className="absolute w-28 h-28 rounded-full blur-2xl opacity-85"
-          style={{
-            x: useTransform(cursorSpringX, (v) => v - 56),
-            y: useTransform(cursorSpringY, (v) => v - 56),
-            background:
-              "radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(186,230,253,0.55) 48%, transparent 72%)",
-          }}
-        />
+        {!isMobile && !prefersReducedMotion && (
+          <>
+            <motion.div
+              className="absolute w-[460px] h-[460px] rounded-full blur-[85px] opacity-70 mix-blend-multiply"
+              style={{
+                x: lightCursorHaloX,
+                y: lightCursorHaloY,
+                background:
+                  "radial-gradient(circle, rgba(56,189,248,0.34) 0%, rgba(59,130,246,0.22) 40%, rgba(168,85,247,0.16) 62%, transparent 74%)",
+              }}
+            />
+            <motion.div
+              className="absolute w-28 h-28 rounded-full blur-2xl opacity-80"
+              style={{
+                x: lightCursorCoreX,
+                y: lightCursorCoreY,
+                background:
+                  "radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(186,230,253,0.55) 48%, transparent 72%)",
+              }}
+            />
+          </>
+        )}
 
         <motion.div
           animate={{ rotate: [0, 360] }}
@@ -161,8 +196,11 @@ export const AnimatedBackground = () => {
 
         <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_50%,transparent_35%,rgba(59,130,246,0.10)_100%)]" />
       </div>
+    );
+  }
 
-      <div className="fixed inset-0 z-[-1] hidden dark:block bg-[#020617] overflow-hidden pointer-events-none select-none">
+  return (
+      <div className="fixed inset-0 z-[-1] bg-[#020617] overflow-hidden pointer-events-none select-none">
       {/* Base vignette */}
       <div className="absolute inset-0 bg-[radial-gradient(80%_70%_at_50%_40%,rgba(30,64,175,0.18),transparent_70%)]" />
 
@@ -187,25 +225,28 @@ export const AnimatedBackground = () => {
       {/* Interactive spotlight */}
       <motion.div className="absolute inset-0" style={{ background: spotlight }} />
 
-      {/* Dark mode cursor spotlight */}
-      <motion.div
-        className="absolute w-[520px] h-[520px] rounded-full blur-[95px] opacity-80 mix-blend-screen"
-        style={{
-          x: useTransform(cursorSpringX, (v) => v - 260),
-          y: useTransform(cursorSpringY, (v) => v - 260),
-          background:
-            "radial-gradient(circle, rgba(34,211,238,0.34) 0%, rgba(59,130,246,0.28) 36%, rgba(168,85,247,0.18) 58%, transparent 74%)",
-        }}
-      />
-      <motion.div
-        className="absolute w-24 h-24 rounded-full blur-xl opacity-90 mix-blend-screen"
-        style={{
-          x: useTransform(cursorSpringX, (v) => v - 48),
-          y: useTransform(cursorSpringY, (v) => v - 48),
-          background:
-            "radial-gradient(circle, rgba(125,211,252,0.95) 0%, rgba(56,189,248,0.48) 48%, transparent 72%)",
-        }}
-      />
+      {!isMobile && !prefersReducedMotion && (
+        <>
+          <motion.div
+            className="absolute w-[520px] h-[520px] rounded-full blur-[95px] opacity-70 mix-blend-screen"
+            style={{
+              x: darkCursorHaloX,
+              y: darkCursorHaloY,
+              background:
+                "radial-gradient(circle, rgba(34,211,238,0.34) 0%, rgba(59,130,246,0.28) 36%, rgba(168,85,247,0.18) 58%, transparent 74%)",
+            }}
+          />
+          <motion.div
+            className="absolute w-24 h-24 rounded-full blur-xl opacity-85 mix-blend-screen"
+            style={{
+              x: darkCursorCoreX,
+              y: darkCursorCoreY,
+              background:
+                "radial-gradient(circle, rgba(125,211,252,0.95) 0%, rgba(56,189,248,0.48) 48%, transparent 72%)",
+            }}
+          />
+        </>
+      )}
 
       {/* Mouse-reactive aurora blob 1 */}
       <motion.div
@@ -264,6 +305,5 @@ export const AnimatedBackground = () => {
       {/* Final soft depth overlay */}
       <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_50%,transparent_40%,rgba(2,6,23,0.55)_100%)]" />
       </div>
-    </>
   );
 };

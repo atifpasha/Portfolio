@@ -58,7 +58,7 @@ function App() {
       </AnimatePresence>
 
       <div className="bg-transparent min-h-screen text-slate-900 dark:text-slate-100 font-sans selection:bg-blue-500/30 transition-colors duration-0 overflow-x-hidden w-full relative">
-        <AnimatedBackground />
+        <AnimatedBackground darkMode={darkMode} />
         <Navigation darkMode={darkMode} setDarkMode={toggleTheme} />
         
         <main>
