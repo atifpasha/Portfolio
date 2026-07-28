@@ -1,9 +1,22 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Player } from '@lottiefiles/react-lottie-player';
 import { personalInfo } from '../data/portfolioData';
 
 export const Hero = () => {
   const baseUrl = import.meta.env.BASE_URL;
+  const [heroLottieSrc, setHeroLottieSrc] = useState(`${baseUrl}Developer.json`);
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 768px)');
+    const updateSrc = () => {
+      setHeroLottieSrc(`${baseUrl}${media.matches ? 'codings.json' : 'Developer.json'}`);
+    };
+
+    updateSrc();
+    media.addEventListener('change', updateSrc);
+    return () => media.removeEventListener('change', updateSrc);
+  }, [baseUrl]);
 
   return (
     <section id="home" className="min-h-[100svh] flex flex-col lg:flex-row items-center justify-between px-6 sm:px-8 md:px-20 max-w-7xl mx-auto gap-12 lg:gap-8 pt-32 pb-16 lg:pt-20">
@@ -70,7 +83,7 @@ export const Hero = () => {
         <Player
           autoplay
           loop
-          src={`${baseUrl}Developer.json`}
+          src={heroLottieSrc}
           style={{ width: '100%' }}
           className="w-full h-[300px] sm:h-[400px] lg:h-[500px] transform scale-110 sm:scale-125 lg:scale-100"
         />
