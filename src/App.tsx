@@ -1,11 +1,12 @@
-import { useState, useLayoutEffect } from 'react'
+import { lazy, Suspense, useState, useLayoutEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Navigation } from './components/Navigation'
 import { AnimatedBackground } from './components/AnimatedBackground'
 import { Hero } from './sections/Hero'
-import { Experience } from './sections/Experience'
-import { Projects } from './sections/Projects'
-import { Contact } from './sections/Contact'
+
+const Experience = lazy(() => import('./sections/Experience').then((m) => ({ default: m.Experience })))
+const Projects = lazy(() => import('./sections/Projects').then((m) => ({ default: m.Projects })))
+const Contact = lazy(() => import('./sections/Contact').then((m) => ({ default: m.Contact })))
 
 function App() {
   const [darkMode, setDarkMode] = useState(() => {
@@ -63,9 +64,11 @@ function App() {
         
         <main>
           <Hero />
-          <Experience />
-          <Projects />
-          <Contact />
+          <Suspense fallback={<div className="h-24" aria-hidden="true" />}>
+            <Experience />
+            <Projects />
+            <Contact />
+          </Suspense>
         </main>
         
         <footer className="text-center py-8 text-slate-500 font-mono text-sm border-t border-gray-200 dark:border-white/5 transition-colors duration-0">

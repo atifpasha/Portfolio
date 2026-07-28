@@ -5,18 +5,12 @@ import { personalInfo } from '../data/portfolioData';
 
 export const Hero = () => {
   const baseUrl = import.meta.env.BASE_URL;
-  const [heroLottieSrc, setHeroLottieSrc] = useState(`${baseUrl}Developer.json`);
+  const [showHeroLottie, setShowHeroLottie] = useState(false);
 
   useEffect(() => {
-    const media = window.matchMedia('(max-width: 768px)');
-    const updateSrc = () => {
-      setHeroLottieSrc(`${baseUrl}${media.matches ? 'codings.json' : 'Developer.json'}`);
-    };
-
-    updateSrc();
-    media.addEventListener('change', updateSrc);
-    return () => media.removeEventListener('change', updateSrc);
-  }, [baseUrl]);
+    const timer = window.setTimeout(() => setShowHeroLottie(true), 250);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   return (
     <section id="home" className="min-h-[100svh] flex flex-col lg:flex-row items-center justify-between px-6 sm:px-8 md:px-20 max-w-7xl mx-auto gap-12 lg:gap-8 pt-32 pb-16 lg:pt-20">
@@ -80,13 +74,17 @@ export const Hero = () => {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, delay: 0.3 }}
       >
-        <Player
-          autoplay
-          loop
-          src={heroLottieSrc}
-          style={{ width: '100%' }}
-          className="w-full h-[300px] sm:h-[400px] lg:h-[500px] transform scale-110 sm:scale-125 lg:scale-100"
-        />
+        {showHeroLottie ? (
+          <Player
+            autoplay
+            loop
+            src={`${baseUrl}codings.json`}
+            style={{ width: '100%' }}
+            className="w-full h-[300px] sm:h-[400px] lg:h-[500px] transform scale-110 sm:scale-125 lg:scale-100"
+          />
+        ) : (
+          <div className="w-full h-[300px] sm:h-[400px] lg:h-[500px] rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.2),transparent_65%)]" />
+        )}
       </motion.div>
     </section>
   );
