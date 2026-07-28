@@ -3,6 +3,8 @@ import { experiences } from '../data/portfolioData';
 import { Player } from '@lottiefiles/react-lottie-player';
 
 export const Experience = () => {
+  const baseUrl = import.meta.env.BASE_URL;
+
   return (
     <section id="experience" className="py-16 md:py-24 px-6 sm:px-8 md:px-10 max-w-7xl mx-auto border-t border-gray-200/20 dark:border-white/5 relative z-10">
       <motion.h2 
@@ -60,7 +62,7 @@ export const Experience = () => {
         <Player
           autoplay
           loop
-          src="/exper.json"
+          src={`${baseUrl}exper.json`}
           style={{ width: '100%', height: '400px' }}
           className="h-[250px] sm:h-[300px] lg:h-[400px] opacity-90 drop-shadow-2xl"
         />

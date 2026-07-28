@@ -2,6 +2,8 @@ import { Player } from '@lottiefiles/react-lottie-player';
 import { motion } from 'framer-motion';
 
 export const Contact = () => {
+  const baseUrl = import.meta.env.BASE_URL;
+
   const contactLinks = [
     {
       name: 'Gmail',
@@ -115,7 +117,7 @@ export const Contact = () => {
         <Player
           autoplay
           loop
-          src="/contactus.json"
+          src={`${baseUrl}contactus.json`}
           style={{ width: '100%' }}
           className="h-[250px] sm:h-[300px] lg:h-[400px] opacity-90 drop-shadow-2xl mix-blend-screen"
         />

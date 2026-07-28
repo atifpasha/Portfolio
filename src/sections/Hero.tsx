@@ -3,6 +3,8 @@ import { Player } from '@lottiefiles/react-lottie-player';
 import { personalInfo } from '../data/portfolioData';
 
 export const Hero = () => {
+  const baseUrl = import.meta.env.BASE_URL;
+
   return (
     <section id="home" className="min-h-[100svh] flex flex-col lg:flex-row items-center justify-between px-6 sm:px-8 md:px-20 max-w-7xl mx-auto gap-12 lg:gap-8 pt-32 pb-16 lg:pt-20">
       <div className="flex-1 mt-10 md:mt-0 w-full">
@@ -49,7 +51,7 @@ export const Hero = () => {
            className="mt-10"
         >
           <a 
-            href="/resume.pdf" 
+            href={`${baseUrl}resume.pdf`}
             target="_blank" 
             rel="noopener noreferrer"
             className="inline-block px-8 py-4 bg-transparent border-2 border-blue-400 text-blue-400 font-mono rounded overflow-hidden relative group hover:bg-blue-400/10 transition-colors duration-300"
@@ -68,7 +70,7 @@ export const Hero = () => {
         <Player
           autoplay
           loop
-          src="/Developer.json"
+          src={`${baseUrl}Developer.json`}
           style={{ width: '100%' }}
           className="w-full h-[300px] sm:h-[400px] lg:h-[500px] transform scale-110 sm:scale-125 lg:scale-100"
         />
