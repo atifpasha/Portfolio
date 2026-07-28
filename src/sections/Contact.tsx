@@ -1,5 +1,5 @@
-import { Player } from '@lottiefiles/react-lottie-player';
 import { motion } from 'framer-motion';
+import { LazyLottie } from '../components/LazyLottie';
 
 export const Contact = () => {
   const baseUrl = import.meta.env.BASE_URL;
@@ -114,12 +114,11 @@ export const Contact = () => {
         viewport={{ once: true }}
         transition={{ duration: 0.8, delay: 0.3 }}
       >
-        <Player
-          autoplay
-          loop
+        <LazyLottie
           src={`${baseUrl}contactus.json`}
-          style={{ width: '100%' }}
+          mobileSrc={`${baseUrl}Email.json`}
           className="h-[250px] sm:h-[300px] lg:h-[400px] opacity-90 drop-shadow-2xl mix-blend-screen"
+          placeholderClassName="w-full h-full rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(56,189,248,0.18),transparent_68%)]"
         />
       </motion.div>
       </div>

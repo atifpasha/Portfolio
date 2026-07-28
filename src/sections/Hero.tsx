@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Player } from '@lottiefiles/react-lottie-player';
 import { personalInfo } from '../data/portfolioData';
+import { LazyLottie } from '../components/LazyLottie';
 
 export const Hero = () => {
   const baseUrl = import.meta.env.BASE_URL;
@@ -75,12 +75,10 @@ export const Hero = () => {
         transition={{ duration: 0.8, delay: 0.3 }}
       >
         {showHeroLottie ? (
-          <Player
-            autoplay
-            loop
+          <LazyLottie
             src={`${baseUrl}codings.json`}
-            style={{ width: '100%' }}
             className="w-full h-[300px] sm:h-[400px] lg:h-[500px] transform scale-110 sm:scale-125 lg:scale-100"
+            placeholderClassName="w-full h-full rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.2),transparent_65%)]"
           />
         ) : (
           <div className="w-full h-[300px] sm:h-[400px] lg:h-[500px] rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.2),transparent_65%)]" />

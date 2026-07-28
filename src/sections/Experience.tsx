@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { experiences } from '../data/portfolioData';
-import { Player } from '@lottiefiles/react-lottie-player';
+import { LazyLottie } from '../components/LazyLottie';
 
 export const Experience = () => {
   const baseUrl = import.meta.env.BASE_URL;
@@ -59,12 +59,11 @@ export const Experience = () => {
         viewport={{ once: true }}
         transition={{ duration: 0.8, delay: 0.3 }}
       >
-        <Player
-          autoplay
-          loop
+        <LazyLottie
           src={`${baseUrl}exper.json`}
-          style={{ width: '100%', height: '400px' }}
+          mobileSrc={`${baseUrl}codings.json`}
           className="h-[250px] sm:h-[300px] lg:h-[400px] opacity-90 drop-shadow-2xl"
+          placeholderClassName="w-full h-full rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.16),transparent_68%)]"
         />
       </motion.div>
       </div>
