@@ -1,18 +1,62 @@
-import { useEffect } from "react";
-import { motion, useSpring, useMotionValue } from "framer-motion";
+import { useEffect, useMemo } from "react";
+import {
+  motion,
+  useMotionTemplate,
+  useMotionValue,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 
 export const AnimatedBackground = () => {
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
+  const mouseX = useMotionValue(0); // -1 to 1
+  const mouseY = useMotionValue(0); // -1 to 1
+  const cursorX = useMotionValue(0);
+  const cursorY = useMotionValue(0);
 
-  // Smooth out the mouse to give the aura a fluid, trailing effect
-  const springX = useSpring(mouseX, { stiffness: 40, damping: 20 });
-  const springY = useSpring(mouseY, { stiffness: 40, damping: 20 });
+  // Smooth values for premium trailing/parallax feel
+  const springX = useSpring(mouseX, { stiffness: 80, damping: 24, mass: 0.6 });
+  const springY = useSpring(mouseY, { stiffness: 80, damping: 24, mass: 0.6 });
+  const cursorSpringX = useSpring(cursorX, { stiffness: 140, damping: 28, mass: 0.4 });
+  const cursorSpringY = useSpring(cursorY, { stiffness: 140, damping: 28, mass: 0.4 });
+
+  // Multi-layer parallax motion
+  const gridX = useTransform(springX, [-1, 1], [-14, 14]);
+  const gridY = useTransform(springY, [-1, 1], [-10, 10]);
+  const orbOneX = useTransform(springX, [-1, 1], [-120, 120]);
+  const orbOneY = useTransform(springY, [-1, 1], [-90, 90]);
+  const orbTwoX = useTransform(springX, [-1, 1], [100, -100]);
+  const orbTwoY = useTransform(springY, [-1, 1], [70, -70]);
+
+  // Interactive spotlight follows cursor
+  const spotlightX = useTransform(springX, [-1, 1], ["12%", "88%"]);
+  const spotlightY = useTransform(springY, [-1, 1], ["12%", "88%"]);
+  const spotlight = useMotionTemplate`radial-gradient(650px circle at ${spotlightX} ${spotlightY}, rgba(59,130,246,0.22), rgba(14,165,233,0.14) 24%, rgba(168,85,247,0.10) 42%, transparent 72%)`;
+  const lightSpotlight = useMotionTemplate`radial-gradient(560px circle at ${spotlightX} ${spotlightY}, rgba(59,130,246,0.18), rgba(56,189,248,0.14) 28%, rgba(139,92,246,0.10) 48%, transparent 74%)`;
+
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 18 }, (_, i) => ({
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.random() * 3 + 1,
+        opacity: Math.random() * 0.35 + 0.15,
+        driftX: Math.random() * 18 - 9,
+        driftY: Math.random() * 30 + 20,
+        duration: Math.random() * 8 + 12,
+        delay: Math.random() * 6,
+      })),
+    []
+  );
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      mouseX.set(e.clientX - window.innerWidth / 2);
-      mouseY.set(e.clientY - window.innerHeight / 2);
+      const nx = (e.clientX / window.innerWidth) * 2 - 1;
+      const ny = (e.clientY / window.innerHeight) * 2 - 1;
+      mouseX.set(nx);
+      mouseY.set(ny);
+      cursorX.set(e.clientX);
+      cursorY.set(e.clientY);
     };
 
     window.addEventListener("mousemove", handleMouseMove);
@@ -20,60 +64,206 @@ export const AnimatedBackground = () => {
   }, [mouseX, mouseY]);
 
   return (
-    <div className="fixed inset-0 z-[-1] hidden dark:block bg-[#020617] overflow-hidden pointer-events-none">
-      
-      {/* Heavy Mesh Grid */}
-      <div 
-        className="absolute inset-0 opacity-40"
+    <>
+      {/* Light mode premium background */}
+      <div className="fixed inset-0 z-[-1] block dark:hidden bg-[#f8fbff] overflow-hidden pointer-events-none select-none">
+        <div className="absolute inset-0 bg-[radial-gradient(80%_70%_at_50%_35%,rgba(125,211,252,0.35),transparent_72%)]" />
+
+        <motion.div
+          className="absolute inset-0 opacity-35"
+          style={{
+            x: gridX,
+            y: gridY,
+            backgroundImage: `
+              linear-gradient(to right, rgba(59,130,246,0.09) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(59,130,246,0.09) 1px, transparent 1px)
+            `,
+            backgroundSize: "40px 40px",
+            maskImage:
+              "radial-gradient(ellipse 90% 85% at 50% 50%, black 32%, transparent 100%)",
+            WebkitMaskImage:
+              "radial-gradient(ellipse 90% 85% at 50% 50%, black 32%, transparent 100%)",
+          }}
+        />
+
+        <motion.div className="absolute inset-0" style={{ background: lightSpotlight }} />
+
+        {/* Light mode cursor spotlight */}
+        <motion.div
+          className="absolute w-[460px] h-[460px] rounded-full blur-[85px] opacity-75 mix-blend-multiply"
+          style={{
+            x: useTransform(cursorSpringX, (v) => v - 230),
+            y: useTransform(cursorSpringY, (v) => v - 230),
+            background:
+              "radial-gradient(circle, rgba(56,189,248,0.34) 0%, rgba(59,130,246,0.22) 40%, rgba(168,85,247,0.16) 62%, transparent 74%)",
+          }}
+        />
+        <motion.div
+          className="absolute w-28 h-28 rounded-full blur-2xl opacity-85"
+          style={{
+            x: useTransform(cursorSpringX, (v) => v - 56),
+            y: useTransform(cursorSpringY, (v) => v - 56),
+            background:
+              "radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(186,230,253,0.55) 48%, transparent 72%)",
+          }}
+        />
+
+        <motion.div
+          animate={{ rotate: [0, 360] }}
+          transition={{ duration: 34, repeat: Infinity, ease: "linear" }}
+          className="absolute top-[8%] left-[5%] w-[38rem] h-[38rem] rounded-full mix-blend-multiply pointer-events-none blur-[90px] opacity-65"
+          style={{
+            x: orbOneX,
+            y: orbOneY,
+            background:
+              "conic-gradient(from 140deg, rgba(59,130,246,0.28), rgba(6,182,212,0.24), rgba(139,92,246,0.18), rgba(59,130,246,0.28))",
+          }}
+        />
+
+        <motion.div
+          animate={{ rotate: [360, 0] }}
+          transition={{ duration: 38, repeat: Infinity, ease: "linear" }}
+          className="absolute bottom-[-16%] right-[-10%] w-[45rem] h-[45rem] rounded-full mix-blend-multiply pointer-events-none blur-[100px] opacity-55"
+          style={{
+            x: orbTwoX,
+            y: orbTwoY,
+            background:
+              "conic-gradient(from 220deg, rgba(14,165,233,0.22), rgba(56,189,248,0.20), rgba(168,85,247,0.16), rgba(14,165,233,0.22))",
+          }}
+        />
+
+        <div className="absolute inset-0">
+          {particles.map((p) => (
+            <motion.span
+              key={`light-${p.id}`}
+              className="absolute rounded-full bg-blue-500/30"
+              style={{
+                left: `${p.x}%`,
+                top: `${p.y}%`,
+                width: `${p.size}px`,
+                height: `${p.size}px`,
+                opacity: p.opacity * 0.85,
+              }}
+              animate={{
+                x: [0, p.driftX, 0],
+                y: [0, -p.driftY, 0],
+                opacity: [p.opacity * 0.45, p.opacity * 0.9, p.opacity * 0.45],
+              }}
+              transition={{
+                duration: p.duration,
+                delay: p.delay,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_50%,transparent_35%,rgba(59,130,246,0.10)_100%)]" />
+      </div>
+
+      <div className="fixed inset-0 z-[-1] hidden dark:block bg-[#020617] overflow-hidden pointer-events-none select-none">
+      {/* Base vignette */}
+      <div className="absolute inset-0 bg-[radial-gradient(80%_70%_at_50%_40%,rgba(30,64,175,0.18),transparent_70%)]" />
+
+      {/* Parallax mesh grid */}
+      <motion.div
+        className="absolute inset-0 opacity-35"
         style={{
+          x: gridX,
+          y: gridY,
           backgroundImage: `
-            linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)
+            linear-gradient(to right, rgba(148,163,184,0.10) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(148,163,184,0.10) 1px, transparent 1px)
           `,
-          backgroundSize: '3rem 3rem',
-          maskImage: 'radial-gradient(ellipse 100% 100% at 50% 50%, black 20%, transparent 100%)',
-          WebkitMaskImage: 'radial-gradient(ellipse 100% 100% at 50% 50%, black 20%, transparent 100%)'
+          backgroundSize: "42px 42px",
+          maskImage:
+            "radial-gradient(ellipse 90% 85% at 50% 50%, black 30%, transparent 100%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse 90% 85% at 50% 50%, black 30%, transparent 100%)",
         }}
       />
 
-      {/* Primary Interactive Mouse Tracking Aura - BRIGHT CYAN & PURPLE */}
+      {/* Interactive spotlight */}
+      <motion.div className="absolute inset-0" style={{ background: spotlight }} />
+
+      {/* Dark mode cursor spotlight */}
       <motion.div
-        className="absolute top-1/2 left-1/2 w-[40rem] h-[40rem] rounded-full mix-blend-screen pointer-events-none filter blur-[100px]"
+        className="absolute w-[520px] h-[520px] rounded-full blur-[95px] opacity-80 mix-blend-screen"
         style={{
-          x: springX,
-          y: springY,
-          marginLeft: "-20rem", 
-          marginTop: "-20rem",
-          background: "radial-gradient(circle, rgba(6, 182, 212, 0.6) 0%, rgba(139, 92, 246, 0.4) 40%, transparent 70%)"
+          x: useTransform(cursorSpringX, (v) => v - 260),
+          y: useTransform(cursorSpringY, (v) => v - 260),
+          background:
+            "radial-gradient(circle, rgba(34,211,238,0.34) 0%, rgba(59,130,246,0.28) 36%, rgba(168,85,247,0.18) 58%, transparent 74%)",
+        }}
+      />
+      <motion.div
+        className="absolute w-24 h-24 rounded-full blur-xl opacity-90 mix-blend-screen"
+        style={{
+          x: useTransform(cursorSpringX, (v) => v - 48),
+          y: useTransform(cursorSpringY, (v) => v - 48),
+          background:
+            "radial-gradient(circle, rgba(125,211,252,0.95) 0%, rgba(56,189,248,0.48) 48%, transparent 72%)",
         }}
       />
 
-      {/* Sweeping Ambient Aurora 1 - PINK/PURPLE */}
+      {/* Mouse-reactive aurora blob 1 */}
       <motion.div
-        animate={{
-          rotate: [0, 360],
-          scale: [1, 1.2, 1],
-        }}
+        animate={{ rotate: [0, 360] }}
         transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-        className="hidden md:block absolute -top-[10%] -left-[10%] w-[60vw] h-[60vw] bg-[conic-gradient(from_0deg,rgba(168,85,247,0.3),rgba(236,72,153,0.3),transparent,rgba(168,85,247,0.3))] rounded-full mix-blend-screen filter blur-[100px] opacity-80"
-      />
-
-      {/* Sweeping Ambient Aurora 2 - DEEP BLUE / CYAN */}
-      <motion.div
-        animate={{
-          rotate: [360, 0],
-          scale: [1, 1.3, 1],
+        className="absolute top-[12%] left-[8%] w-[44rem] h-[44rem] rounded-full mix-blend-screen pointer-events-none blur-[95px] opacity-80"
+        style={{
+          x: orbOneX,
+          y: orbOneY,
+          background:
+            "conic-gradient(from 120deg, rgba(59,130,246,0.30), rgba(14,165,233,0.38), rgba(168,85,247,0.28), rgba(59,130,246,0.30))",
         }}
-        transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
-        className="hidden md:block absolute -bottom-[10%] -right-[10%] w-[60vw] h-[60vw] bg-[conic-gradient(from_180deg,rgba(59,130,246,0.4),rgba(6,182,212,0.3),transparent,rgba(59,130,246,0.4))] rounded-full mix-blend-screen filter blur-[100px] opacity-80"
       />
 
-      {/* Mobile-Only Simplified Gradient Glow (to replace heavy auroras) */}
-      <div className="md:hidden absolute -top-[10%] -left-[10%] w-[100vw] h-[100vw] bg-radial-gradient from-blue-900/30 to-transparent rounded-full filter blur-[60px] opacity-50" />
-      <div className="md:hidden absolute -bottom-[10%] -right-[10%] w-[100vw] h-[100vw] bg-radial-gradient from-purple-900/30 to-transparent rounded-full filter blur-[60px] opacity-50" />
+      {/* Mouse-reactive aurora blob 2 */}
+      <motion.div
+        animate={{ rotate: [360, 0] }}
+        transition={{ duration: 34, repeat: Infinity, ease: "linear" }}
+        className="absolute bottom-[-18%] right-[-10%] w-[52rem] h-[52rem] rounded-full mix-blend-screen pointer-events-none blur-[110px] opacity-75"
+        style={{
+          x: orbTwoX,
+          y: orbTwoY,
+          background:
+            "conic-gradient(from 220deg, rgba(14,165,233,0.30), rgba(99,102,241,0.25), rgba(236,72,153,0.20), rgba(14,165,233,0.30))",
+        }}
+      />
 
-      {/* Static Deep Glow Center */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[70vh] bg-blue-900/20 rounded-full blur-[80px] md:blur-[120px] pointer-events-none" />
-    </div>
+      {/* Floating particles */}
+      <div className="absolute inset-0">
+        {particles.map((p) => (
+          <motion.span
+            key={p.id}
+            className="absolute rounded-full bg-blue-200/40"
+            style={{
+              left: `${p.x}%`,
+              top: `${p.y}%`,
+              width: `${p.size}px`,
+              height: `${p.size}px`,
+              opacity: p.opacity,
+            }}
+            animate={{
+              x: [0, p.driftX, 0],
+              y: [0, -p.driftY, 0],
+              opacity: [p.opacity * 0.7, p.opacity, p.opacity * 0.7],
+            }}
+            transition={{
+              duration: p.duration,
+              delay: p.delay,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Final soft depth overlay */}
+      <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_50%,transparent_40%,rgba(2,6,23,0.55)_100%)]" />
+      </div>
+    </>
   );
 };

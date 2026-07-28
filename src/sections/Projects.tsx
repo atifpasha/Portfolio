@@ -14,18 +14,28 @@ interface Project {
 
 const ProjectCard = ({ project, index }: { project: Project, index: number }) => {
   const ref = useRef<HTMLDivElement>(null);
+
+  const handleDescriptionWheel = (e: React.WheelEvent<HTMLParagraphElement>) => {
+    const el = e.currentTarget;
+    const isScrollingDown = e.deltaY > 0;
+    const isScrollingUp = e.deltaY < 0;
+    const atTop = el.scrollTop <= 0;
+    const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+
+    // Keep wheel interaction isolated to description area
+    e.stopPropagation();
+
+    // Prevent scroll-chaining to page at boundaries
+    if ((isScrollingUp && atTop) || (isScrollingDown && atBottom)) {
+      e.preventDefault();
+    }
+  };
   
   // Custom 3D Motion Values
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
-  // Smooth out the raw mouse values into a spring
-  const mouseXSpring = useSpring(x, { stiffness: 300, damping: 30 });
-  const mouseYSpring = useSpring(y, { stiffness: 300, damping: 30 });
-
-  // Map the spring values to degrees for rotation (-15deg to 15deg max)
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["12deg", "-12deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-12deg", "12deg"]);
+  // Keep springs for glow interaction only (no 3D text tilt)
 
   // Calculate generic percentages for the dynamic glow effect
   const glowX = useSpring(useTransform(x, [-0.5, 0.5], ["0%", "100%"]), { stiffness: 300, damping: 30 });
@@ -57,14 +67,10 @@ const ProjectCard = ({ project, index }: { project: Project, index: number }) =>
       onMouseLeave={handleMouseLeave}
       initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -6, scale: 1.01 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.6, delay: index * 0.1 }}
-      style={{ 
-        rotateX, 
-        rotateY, 
-        transformStyle: "preserve-3d" 
-      }}
-      className="snap-center shrink-0 w-[85vw] max-w-[360px] sm:w-[320px] md:w-[360px] h-[420px] md:h-[480px] relative rounded-2xl group cursor-default"
+      className="snap-start w-full min-w-0 h-[420px] md:h-[480px] relative rounded-2xl group cursor-default transform-gpu"
     >
       {/* Background card plane */}
       <div 
@@ -89,10 +95,10 @@ const ProjectCard = ({ project, index }: { project: Project, index: number }) =>
         />
       </div>
 
-      {/* Foreground Content Plane - Pops OUT in 3D using translateZ */}
+      {/* Foreground Content Plane - keep text on a stable plane to avoid spacing jitter */}
       <div 
-        className="p-6 md:p-8 relative z-10 h-full flex flex-col pointer-events-none overflow-hidden"
-        style={{ transform: "translateZ(60px)", transformStyle: "preserve-3d" }}
+        className="p-6 md:p-8 relative z-10 h-full min-h-0 flex flex-col pointer-events-none overflow-hidden antialiased"
+        style={{ transform: "translateZ(0)", backfaceVisibility: "hidden", WebkitFontSmoothing: "antialiased" }}
       >
         <div className="flex justify-between items-center mb-6 md:mb-8 text-gray-500 dark:text-gray-400 pointer-events-auto shrink-0">
           <motion.div 
@@ -110,7 +116,10 @@ const ProjectCard = ({ project, index }: { project: Project, index: number }) =>
           {project.title}
         </h3>
         
-        <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mb-2 md:mb-8 flex-grow leading-relaxed group-hover:text-gray-900 dark:group-hover:text-gray-300 transition-colors duration-300 pointer-events-auto line-clamp-3 sm:line-clamp-4">
+        <p
+          onWheel={handleDescriptionWheel}
+          className="text-sm md:text-base text-gray-600 dark:text-gray-400 mb-2 md:mb-6 flex-1 min-h-0 overflow-y-auto overscroll-contain pr-1 leading-relaxed group-hover:text-gray-900 dark:group-hover:text-gray-300 transition-colors duration-300 pointer-events-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
           {project.description}
         </p>
         
@@ -128,7 +137,7 @@ const ProjectCard = ({ project, index }: { project: Project, index: number }) =>
 
 export const Projects = () => {
   return (
-    <section id="projects" className="py-16 md:py-24 px-6 sm:px-8 md:px-20 max-w-[1400px] mx-auto overflow-hidden relative">
+    <section id="projects" className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 max-w-[1600px] mx-auto relative">
       <motion.h2 
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -142,7 +151,7 @@ export const Projects = () => {
 
       <div className="relative">
         <div 
-          className="overflow-x-auto pb-4 md:pb-16 pt-4 md:pt-8 px-4 sm:px-6 md:px-4 -mx-4 sm:-mx-6 md:-mx-4 flex gap-6 sm:gap-8 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          className="overflow-x-auto lg:overflow-visible pb-4 md:pb-8 pt-4 md:pt-8 grid grid-flow-col auto-cols-[85vw] sm:auto-cols-[320px] md:auto-cols-[360px] lg:grid-flow-row lg:[grid-template-columns:repeat(auto-fit,minmax(360px,360px))] lg:justify-center gap-6 sm:gap-8 snap-x snap-mandatory lg:snap-none items-stretch [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           style={{ perspective: "1500px" }}
         >
           {projects.map((project, index) => (

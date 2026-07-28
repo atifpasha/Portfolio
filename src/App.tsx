@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useLayoutEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Navigation } from './components/Navigation'
 import { AnimatedBackground } from './components/AnimatedBackground'
@@ -8,7 +8,13 @@ import { Projects } from './sections/Projects'
 import { Contact } from './sections/Contact'
 
 function App() {
-  const [darkMode, setDarkMode] = useState(true)
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    const savedTheme = window.localStorage.getItem('theme');
+    if (savedTheme === 'dark') return true;
+    if (savedTheme === 'light') return false;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  })
   const [isTransitioning, setIsTransitioning] = useState(false)
 
   // Handle the highly visual page wipe transition when changing themes
@@ -25,11 +31,13 @@ function App() {
     }, 1200); 
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark');
+      window.localStorage.setItem('theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
+      window.localStorage.setItem('theme', 'light');
     }
   }, [darkMode]);
 
@@ -43,13 +51,13 @@ function App() {
             animate={{ clipPath: "circle(150% at 90% 10%)" }}
             exit={{ clipPath: "circle(0% at 90% 10%)" }}
             transition={{ duration: 0.8, ease: "easeInOut" }}
-            className={`fixed inset-0 z-[100] ${!darkMode ? 'bg-[#0a192f]' : 'bg-slate-50'}`}
+            className={`fixed inset-0 z-100 ${!darkMode ? 'bg-[#0a192f]' : 'bg-slate-50'}`}
             style={{ pointerEvents: 'none' }}
           />
         )}
       </AnimatePresence>
 
-      <div className="bg-slate-50 dark:bg-transparent min-h-screen text-slate-900 dark:text-slate-100 font-sans selection:bg-blue-500/30 transition-colors duration-0 overflow-x-hidden w-full relative">
+      <div className="bg-transparent min-h-screen text-slate-900 dark:text-slate-100 font-sans selection:bg-blue-500/30 transition-colors duration-0 overflow-x-hidden w-full relative">
         <AnimatedBackground />
         <Navigation darkMode={darkMode} setDarkMode={toggleTheme} />
         
